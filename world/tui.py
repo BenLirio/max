@@ -15,34 +15,47 @@ class Tui():
         self.readable.add(self.socket)
         self.writable = set()
 
+    def terminate(self):
+        self.socket.close()
+        os.kill(os.getpid(), signal.SIGINT)
+
+
+    def remove_current_command(self):
+        print('\b'*(len(self.cur)), end='', flush=True)
+
+    def print_current_command(self):
+        print(f'{self.cur}', end='', flush=True)
+
+    def handle_reader(self, reader):
+
+        if reader == self.socket:
+            data = reader.recv(1024)
+            if len(data) == 0:
+                self.terminate()
+            text = data.decode('UTF-8')
+            self.remove_current_command()
+            print(f'{text}', end='', flush=True)
+            self.print_current_command()
+
+        if reader == sys.stdin:
+            c = sys.stdin.read(1)
+            if ord(c) == 3:
+                self.terminate()
+            if ord(c) == 13:
+                print(f'\n\r', end='', flush=True)
+                if self.cur == 'quit':
+                    self.terminate()
+                    
+                self.socket.send(self.cur.encode('UTF-8'))
+                self.cur = ''
+            else:
+                print(c, end='', flush=True)
+                self.cur += c
+
     def run(self):
         try:
-            print('> ', end='', flush=True)
             while True:
                 readers, _, _ = select(self.readable, [], [], 0.1)
-                for reader in readers:
-                    if reader == self.socket:
-                        data = reader.recv(1024)
-                        if len(data) == 0:
-                            os.kill(os.getpid(), signal.SIGINT)
-                        text = data.decode('UTF-8')
-                        print('\b'*(len(self.cur)+2), end='', flush=True)
-                        print(f'{text}{chr(13)}{chr(10)}', end='', flush=True)
-                        print(f'> {self.cur}', end='', flush=True)
-                    if reader == sys.stdin:
-                        c = sys.stdin.read(1)
-                        if ord(c) == 3:
-                            os.kill(os.getpid(), signal.SIGINT)
-                        if ord(c) == 13:
-                            print(f'{chr(13)}{chr(10)}> ', end='', flush=True)
-                            if self.cur == 'quit':
-                                self.socket.close()
-                                os.kill(os.getpid(), signal.SIGINT)
-
-                            self.socket.send(self.cur.encode('UTF-8'))
-                            self.cur = ''
-                        else:
-                            print(c, end='', flush=True)
-                            self.cur += c
+                [ self.handle_reader(r) for r in readers ]
         except:
-            os.kill(os.getpid(), signal.SIGINT)
+            self.terminate()

@@ -5,16 +5,16 @@ import pickle
 
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
-cache = {}
+_cache = {}
 
 def save_cache():
-    pickle.dump(cache, open('cache.pkl', 'wb'))
+    pickle.dump(_cache, open('cache.pkl', 'wb'))
 atexit.register(save_cache)
-cache = pickle.load(open('cache.pkl', 'rb'))
+_cache = pickle.load(open('cache.pkl', 'rb'))
 
-def complete(prompt, quality=False, lots=False, use_cache=True):
-    if use_cache and (prompt, quality, lots) in cache:
-        return cache[(prompt, quality, lots)]
+def complete(prompt, quality=False, lots=False, cache=True):
+    if cache and (prompt, quality, lots) in _cache:
+        return _cache[(prompt, quality, lots)]
     max_tokens = 16
     if lots:
         max_tokens = 64
@@ -27,7 +27,5 @@ def complete(prompt, quality=False, lots=False, use_cache=True):
             max_tokens=max_tokens
             )
     out = res.choices[0].text.strip()
-    cache[(prompt, quality, lots)] = out
+    _cache[(prompt, quality, lots)] = out
     return out
-
-print(complete('Say this is a test'))

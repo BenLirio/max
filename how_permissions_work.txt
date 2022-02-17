@@ -1,0 +1,53 @@
+Every file on a computer has permissions.
+
+Each file has seperate permissions for 'Read', 'Write', and 'Execute'
+
+For example, if you are reading this file right now, then this file has 'Read' permissions.
+
+For me to type out this file, I had to have 'Write' permision.
+
+To execute the command 'zork' you must have 'Execute' permission to the file 'zork'.
+
+### How to view a files permissions ###
+
+To view the permisions of the files in your folder type
+$ ls -l
+-rw-rw-r-- 1 ben ben  159 Jan 11 00:38 README.txt
+                                       ^^^^^^^^^^
+This means that the file README.txt has permisions '-rw-rw-r--'
+Wait, but what does that mean?
+
+After ignoring the first '-', you can split the output into three sections
+'rw-' 'rw-' and 'r--'
+Each of contain 3 letters that stands for permissions.
+The first 'rw-' stands for Read and Write.
+The last 'r--' stands for just Read.
+If a file had only execute permisions it would look like '--x'
+
+But why are there three?
+They stand for the different types of users on the computer.
+The three types are User, Group, Other.
+
+User: The person who owns the file, (Max).
+Group: Similar to family member (Papa).
+Other: Similar to guest (Owen).
+
+Pretend you had a private journal on the computer, then you may want the permissions to be
+'rw-' for you
+'---' for Group and Other
+
+Here are some more examples:
+
+Example 1:
+-rwx---r--
+User has Read, Write, Execute
+Group has None
+Other has Read
+
+Example 2:
+-r--r--r--
+Anyone can Read the file but no one can Write or Execute it.
+
+### How to change permissions ###
+
+I am busy right now, but if you want to know in the future let me know and I can explain.
